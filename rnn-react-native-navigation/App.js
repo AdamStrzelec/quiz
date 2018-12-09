@@ -20,13 +20,21 @@ import {
 import { Navigation } from "react-native-navigation";
 import QuizOption from "./components/QuizItemOption";
 import QuizItemOption from "./components/QuizItemOption";
+import QuizItem from "./components/QuizItem";
 
 export default class App extends Component {
   state = {
     napis: "example text",
     quiz: [],
-    nrOfQuiz: 0
+    nrOfQuiz: 0,
+    tests: []
   };
+
+  componentDidMount(){
+    return fetch('https://pwsz-quiz-api.herokuapp.com/api/tests')
+      .then(response => response.json())
+      .then(json => this.setState({tests: json}))
+  }
 
   changeWindowResults = () => {
     Navigation.setRoot({
@@ -42,6 +50,7 @@ export default class App extends Component {
   };
 
   render() {
+    
     let quiz = [
       {
         id: 1,
@@ -86,10 +95,28 @@ export default class App extends Component {
       );
     }
 
+    //
+    //console.log(this.state.tests.length)
+    let tests = this.state
+    var testy = tests
+    let testsTab = []
+    for(let i=0; i<tests.length; i++){
+      /*
+      testsTab.push(
+        
+        <View style={styles.quiz}>
+          <QuizItem tests={tests[i]}/>
+        </View>
+
+      )
+              */
+      console.log(i)
+    }
+    console.log("dlugosc to: " + this.state.tests[3])
     return (
       <View>
         
-          <ScrollView>{quizes}</ScrollView>
+          <ScrollView>{testsTab}</ScrollView>
 
 
         <View style={styles.check}>
