@@ -11,123 +11,19 @@ export default class Results extends Component {
     super();
     this.state = {
       refreshing: false,
+      res: 0,
       tableHead: ['Head1', 'Head2', 'Head3', 'Head4'],
-      //dataSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 != row2}),
+      
       dataSource: ds.cloneWithRows ([
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        },
-        {
-          nick: 'Marek',
-          score: 18,
-          total: 20,
-          type: 'historia',
-          date: '2018-11-22'
-        }
+ 
       ]),
     };
+  }
+
+  componentDidMount = () =>{
+    return fetch('https://pwsz-quiz-api.herokuapp.com/api/results')
+      .then(response => response.json())
+      .then(json => this.setState({dataSource: ds.cloneWithRows(json)}))
   }
 
   _renderRow(rowData){
@@ -143,19 +39,10 @@ export default class Results extends Component {
       </View>
     )
   }
-/*
-  componentWillMount(){
-    this.setState({ dataSource:
-      this.state.dataSource.cloneWithRows(this.state.cars) })
-  }
-  */
+
 
   fetchData = async() => {
     try {
-      var results = await AsyncStorage.getItem('results');
-      results = JSON.parse(results);
-      const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 != r2});
-      this.setState({ dataSource: ds.cloneWithRows(results) });
       this._renderRow();
     }catch (error){
 
@@ -172,6 +59,7 @@ export default class Results extends Component {
 
   render() {
     const state = this.state;
+
     return (
       <View style={styles.container1}>
         <View style={styles.header}>
