@@ -96,35 +96,33 @@ export default class App extends Component {
     }
 
     //
-    //console.log(this.state.tests.length)
-    let tests = this.state
-    var testy = tests
-    let testsTab = []
-    for(let i=0; i<tests.length; i++){
-      /*
+    console.log("testsTable: " + this.state.tests.length)
+
+    let testsTab = [];
+    for(let i=0; i<this.state.tests.length; i++){
+      
       testsTab.push(
         
         <View style={styles.quiz}>
-          <QuizItem tests={tests[i]}/>
+          <QuizItem tests={this.state.tests[i]}/>
         </View>
 
-      )
-              */
-      console.log(i)
+      );
+      
+      console.log("dlugosc to: " + this.state.tests.length)
     }
-    console.log("dlugosc to: " + this.state.tests[3])
+    //console.log("dlugosc to: " + this.state.tests[1])
     return (
       <View>
         
-          <ScrollView>{testsTab}</ScrollView>
-
-
+        <ScrollView>{testsTab}
         <View style={styles.check}>
           <Text style={styles.checkTitle}>Get to Know your rank result</Text>
           <TouchableOpacity onPress={this.changeWindowResults}>
             <Text style={styles.checkBtn}>Check!</Text>
           </TouchableOpacity>
         </View>
+        </ScrollView>
       </View>
     );
   }

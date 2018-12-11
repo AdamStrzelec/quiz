@@ -3,38 +3,40 @@ import { Platform, StyleSheet, Text, View, TouchableOpacity } from "react-native
 import { Navigation } from "react-native-navigation";
 
 export default class QuizItem extends Component {
-/*
+
   changeWindowQuiz = () => {
     Navigation.setRoot({
       root: {
         component: {
           name: "Quiz",
           passProps: {
-            quiz: this.props.quizy
+            quizId: this.props.tests.id,
           }
         }
       }
     });
   };
-  */
+  
   render() {
+    let tagsTab = [];
+    for(let i=0; i<this.props.tests.tags.length; i++){
+        tagsTab.push(
+            <Text style={styles.tag}>#{this.props.tests.tags[i]} </Text>
+        )
+    }
     return (
       <View style={styles.quiz}>
-        <View>
-          <TouchableOpacity
-            //onPress={this.changeWindowQuiz}
-          >
-            <Text style={styles.title}>Title: {this.props.tests.name}</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={this.changeWindowQuiz}>
+            <View>
+                <Text style={styles.title}>{this.props.tests.name}</Text>        
+            </View>
 
-        <View>
-          <Text style={styles.tag}>Tag#1 Tag#2</Text>
-        </View>
+            {tagsTab}
 
-        <View>
-          <Text>opis {this.props.tests.description}</Text>
-        </View>
+            <View>
+            <Text>opis {this.props.tests.description}</Text>
+            </View>
+        </TouchableOpacity>
       </View>
     );
   }
