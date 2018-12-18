@@ -1,0 +1,1 @@
+export var FIRST_OPEN = 'prawda';

@@ -14,27 +14,88 @@ import {
   Text,
   View,
   TouchableOpacity,
+  TouchableHighlight,
   ScrollView,
-  Dimensions
+  Dimensions,
+  AsyncStorage,
+  Modal
+  
+  
 } from "react-native";
 import { Navigation } from "react-native-navigation";
 import QuizOption from "./components/QuizItemOption";
 import QuizItemOption from "./components/QuizItemOption";
 import QuizItem from "./components/QuizItem";
+import SQLite from 'react-native-sqlite-storage';
+import { FIRST_OPEN } from './components/config';
+
+//import FtreScreen from './components/FtueScreen';
+
+//var DB
+//const getDB = () => DB ? DB : DB = SQLite.openDatabase({name: 'tests.db', createFromLocation: 1})
 
 export default class App extends Component {
+
+  constructor(props){
+    super(props)
+
+}
+
+
   state = {
     napis: "example text",
     quiz: [],
     nrOfQuiz: 0,
-    tests: []
+    tests: [],
+    firstLaunch: null,
+    modalVisible: false,
   };
 
-  componentDidMount(){
+
+
+  async componentDidMount(){
     return fetch('https://pwsz-quiz-api.herokuapp.com/api/tests')
       .then(response => response.json())
-      .then(json => this.setState({tests: json}))
+      .then(json => {
+        this.setState({tests: json})
+
+        this._retrieveData()
+
+      })
   }
+
+  setModalVisible(visible){
+    this.setState({modalVisible: visible})
+  }
+
+  _retrieveData = async () => {
+
+    
+    try {
+      let value = await AsyncStorage.getItem('log6');
+      if (value !== null) {
+        console.log("zalogowano po arz koejny: " + value);
+      }
+      else{
+        console.log("zalogowano po raz pierszy " + value);
+        await AsyncStorage.setItem('log6', 'launched')
+        this.setState({modalVisible: true});
+      }
+     } catch (error) {
+       
+       alert(error);
+     }
+     
+  }
+
+
+  getAllTests(DB) {
+    const query = 'SELECT * FROM tests;';
+    return DB.executeSql(query).then(([results]) => {
+      return JSON.parse(results.rows.item(0).data || '{}');
+    });
+  }
+  
 
   changeWindowResults = () => {
     Navigation.setRoot({
@@ -50,6 +111,7 @@ export default class App extends Component {
   };
 
   render() {
+
     
     let quiz = [
       {
@@ -97,8 +159,8 @@ export default class App extends Component {
 
     //
     console.log("testsTable: " + this.state.tests.length)
-
     let testsTab = [];
+    if(this.state.tests instanceof Object){
     for(let i=0; i<this.state.tests.length; i++){
       
       testsTab.push(
@@ -108,13 +170,53 @@ export default class App extends Component {
         </View>
 
       );
+    }
       
       console.log("dlugosc to: " + this.state.tests.length)
     }
     //console.log("dlugosc to: " + this.state.tests[1])
-    return (
+    //console.log(FIRST_OPEN);
+    return this.state.tests instanceof Object ? (
       <View>
-        
+
+
+<Modal
+          animationType={"slide"}
+          transparent={true}
+          style={styles.ftreContainer}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            alert("Modal has been closed.");
+          }}
+        >
+          <View style={styles.ftreContainer}>
+            <View style={styles.ftreTitleContainer}>
+              <Text style={styles.ftreTitle}>Witaj w aplikacji Quiz</Text>
+            </View>
+            <View style={styles.ftreDescriptionContainer}>
+              <Text style={styles.ftreDescription} allowFontScaling={true}>
+                Odpowiadaj na pytania i zbierz największą ilość punktów
+              </Text>
+              <Text></Text>
+              <Text style={styles.ftreDescription} allowFontScaling={true}>
+                Baw się dobrze
+              </Text>
+            </View>
+            <View style={styles.ftreExitContainer}>
+              <TouchableHighlight
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}
+              >
+                <View style={styles.ftreExitButtonContainer}>
+                  <Text style={styles.ftreExitButtonText}>OK</Text>
+                </View>
+              </TouchableHighlight>
+            </View>
+          </View>
+        </Modal>
+
+
         <ScrollView>{testsTab}
         <View style={styles.check}>
           <Text style={styles.checkTitle}>Get to Know your rank result</Text>
@@ -124,7 +226,7 @@ export default class App extends Component {
         </View>
         </ScrollView>
       </View>
-    );
+    ) : <View><Text>asdsad</Text></View>;
   }
 }
 
@@ -178,7 +280,63 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     textAlign: "center"
-  }
+  },
+  ftreContainer:{
+		backgroundColor:'black',
+		flex:1,
+		marginTop:70,
+		marginBottom:40,
+		marginLeft:20,
+		marginRight:20,
+		borderRadius:20,
+		borderWidth:4,
+		borderColor:'red'
+	},
+	ftreTitle:{
+		color:'white',
+        fontWeight:'bold',
+		fontSize:20,
+		textAlign:'center',
+		margin:10,	
+	},
+	ftreDescription:{
+		color:'white',
+        fontSize:15,
+		marginRight:20,
+		marginLeft:20
+	},
+	ftreCloseIcon:{
+		alignSelf:'flex-end',
+		flex:0.5,
+		marginRight:10
+	},
+	ftreTitleContainer:{
+		flex:1,
+		flexDirection:'row',
+		justifyContent:'center',
+		alignItems:'center'
+	},
+	ftreDescriptionContainer:{
+		flex:6.5
+	},
+	ftreExitContainer:{
+		flex:2,
+		justifyContent:'flex-start',
+		alignItems:'center',
+	},
+	ftreExitButtonContainer:{
+		width:200,
+		height:40,
+		backgroundColor:'red',
+		borderRadius:10,
+		justifyContent:'center',
+	},
+	ftreExitButtonText:{
+		color:'white',
+		fontSize:20,
+		fontWeight:'bold',
+		textAlign:'center'
+	}
 });
 /*
           <View>

@@ -30,11 +30,11 @@ export default class Quiz extends Component {
 
   
   nextQuestion = () =>{
-    let durat = this.state.dur
+    let duration = this.state.test.tasks[this.state.curQuestNr+1].duration
     let questNr = this.state.curQuestNr
     questNr = questNr+1
-    this.setState({curQuestNr: questNr, answered: false, duration: durat})
-    console.log(this.state.dur + " " + this.state.duration)
+    this.setState({curQuestNr: questNr, answered: false, duration: duration})
+    //console.log(this.state.dur + " " + this.state.duration)
   }
   
  
@@ -50,28 +50,33 @@ export default class Quiz extends Component {
       dur: json.tasks[0].duration
       }
     )
+    
     let tempTabOfTasks = []
     let tempTabOfAnswers = []
     for(let i=0; i<json.tasks.length; i++){    
       for(let j=0; j<json.tasks[i].answers.length; j++){
         tempTabOfAnswers.push(
-          <View>
-            <TouchableOpacity
-              onPress={this.checkAnswer.bind(this, json.tasks[i].answers[j].isCorrect)}>
-              <Text>{json.tasks[i].answers[j].content}</Text>
+          //<View>
+            <TouchableOpacity  
+              onPress={this.checkAnswer.bind(this, json.tasks[i].answers[j].isCorrect)
+              }>
+                <Text style={this.buttonStyle(json.tasks[i].answers[j].isCorrect)}>
+                  {json.tasks[i].answers[j].content}
+                </Text>
             </TouchableOpacity>
-          </View>
+          //</View>
         )
       }
       tempTabOfTasks.push(
         <View>
-          <Text>{json.tasks[i].question}</Text>
+          <Text style={styles.question}>{json.tasks[i].question}</Text>
           {tempTabOfAnswers}
         </View>
       )
       tempTabOfAnswers = []
     }
     this.setState({tableOfTasks: tempTabOfTasks})
+    
     
     if(this.state.test instanceof Object){
       this.timeout = setInterval(() => {
@@ -81,7 +86,7 @@ export default class Quiz extends Component {
         if(currentIdx==0){this.nextQuestion()}
       }, 1000);
     }
-    /*
+    
     //console.log(json.tasks.length)
     console.log(json.tasks[0].answers[0].content)
     
@@ -113,7 +118,7 @@ export default class Quiz extends Component {
       
     });
     console.log(this.state.answers[0])
-*/
+
   })
   
  }
@@ -131,26 +136,86 @@ export default class Quiz extends Component {
   }
 
 
-  render() {
 
+  render() {
+    
+    let tempTabOfTasks = []
+    let tempTabOfAnswers = []
+    if(this.state.test instanceof Object){
+    let test = this.state
+    for(let i=0; i<test.tasks.length; i++){    
+      for(let j=0; j<test.tasks[i].answers.length; j++){
+        tempTabOfAnswers.push(
+          //<View>
+            <TouchableOpacity  
+              onPress={this.checkAnswer.bind(this, test.tasks[i].answers[j].isCorrect)
+              }>
+                <Text style={this.buttonStyle(test.tasks[i].answers[j].isCorrect)}>
+                  {test.tasks[i].answers[j].content}
+                </Text>
+            </TouchableOpacity>
+          //</View>
+        )
+      }
+      tempTabOfTasks.push(
+        <View>
+          <Text style={styles.question}>{test.tasks[i].question}</Text>
+          {tempTabOfAnswers}
+        </View>
+      )
+      tempTabOfAnswers = []
+    }
+  }
+    //{this.state.tableOfTasks[this.state.curQuestNr]}
+    //{tempTabOfTasks[this.state.curQuestNr]}
     return this.state.test instanceof Object ?(
       
       <View style={styles.container}>
-        <Text>{this.state.name}</Text>
-        <Text>{this.state.test.description}</Text>
-        <Text>{this.state.test.tasks[this.state.curQuestNr].question}</Text>
-        <Text>{this.state.questionsCount}</Text>
-        {this.state.tableOfTasks[this.state.curQuestNr]}
-        <TouchableOpacity onPress={this.nextQuestion}><Text>{this.state.buttonTitle}</Text></TouchableOpacity>
-        <Text>{this.state.duration}</Text>
+        <Text style={styles.name}>{this.state.test.name}</Text>
+        <Text style={styles.questNr}>Pytanie {this.state.curQuestNr + 1} z {this.state.questionsCount}</Text>
+        <Text style={styles.points}>Zdobytych punktów: {this.state.points}</Text>
+        <View style={styles.answers}>
+
+          {this.state.tableOfTasks[this.state.curQuestNr]}
+
+          
+        </View>
+        <Text style={styles.duration}>Czas na odpowiedź: {this.state.duration}</Text>
+        <TouchableOpacity 
+          onPress={this.nextQuestion}>
+          <Text style={styles.nextQuest}>{this.state.buttonTitle}</Text>
+        </TouchableOpacity>
+        
       </View>
     ) : <Text>Fetching, Please wait....</Text>;
+  }
+  buttonStyle = function(isCorrect){
+    let answered = this.state.answered
+    console.log("isCorrect: " + answered)
+    
+    let background = 'gray'
+    answered==true ? background='green' : background='gray'
+    return {
+      textAlign: 'center',
+      borderRadius: 15,
+      fontSize: 14,
+      fontWeight: '500',
+      color: 'white',
+      backgroundColor: background,
+      paddingTop: 2,
+      paddingBottom: 3,
+      marginLeft: 15,
+      marginRight: 15,
+      marginTop: 5,
+      width: 400,
+      height: 43
+    }
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    //flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
@@ -165,6 +230,73 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
   },
+  name: {
+    textAlign: 'center',
+    fontSize: 35,
+    fontWeight: 'bold',
+    color: 'green',
+    marginTop: 10,
+    marginBottom: 7
+  },
+  question: {
+    textAlign: 'center',
+    fontSize: 17,
+    fontWeight: '500',
+    height: 120,
+    marginLeft: 15,
+    marginRight: 15
+  },
+  questNr: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'orange',
+    marginBottom: 10
+  },
+  ansBut: {
+    textAlign: 'center',
+    borderRadius: 15,
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'white',
+    backgroundColor: 'gray',
+    paddingTop: 2,
+    paddingBottom: 3,
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 5,
+    width: 400,
+    height: 43
+  },
+
+
+  duration: {
+    textAlign: 'center',
+    fontSize: 23,
+    fontWeight: '500',
+    color: 'brown',
+    marginTop: 5,
+    marginBottom: 5
+  },
+  nextQuest: {
+    textAlign: 'center',
+    borderRadius: 5,
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: 'white',
+    backgroundColor: 'orange',
+    width: 250
+  },
+  points: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '500',
+    color: 'blue'
+  },
+  answers: {
+    height: 400
+  }
+
 });
 /*
         <Text>{quiz.quizNumber}</Text>
