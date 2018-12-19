@@ -34,7 +34,7 @@ export default class QuizItem extends Component {
             {tagsTab}
 
             <View>
-            <Text>opis {this.props.tests.description}</Text>
+            <Text style={styles.description}>{this.props.tests.description}</Text>
             </View>
         </TouchableOpacity>
       </View>
@@ -76,10 +76,15 @@ const styles = StyleSheet.create({
     paddingRight: 10
   },
   title: {
-    fontWeight: "bold",
+    //fontWeight: "bold",
     fontSize: 30,
     justifyContent: "center",
     marginTop: 9,
-    marginBottom: 9
+    marginBottom: 9,
+    fontFamily: 'Charm-Regular' 
   },
+  description: {
+    fontFamily: 'Montserrat-Regular'
+  }
+
 });
