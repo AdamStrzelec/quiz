@@ -72,13 +72,13 @@ export default class App extends Component {
 
     
     try {
-      let value = await AsyncStorage.getItem('log6');
+      let value = await AsyncStorage.getItem('log7');
       if (value !== null) {
         console.log("zalogowano po arz koejny: " + value);
       }
       else{
         console.log("zalogowano po raz pierszy " + value);
-        await AsyncStorage.setItem('log6', 'launched')
+        await AsyncStorage.setItem('log7', 'launched')
         this.setState({modalVisible: true});
       }
      } catch (error) {

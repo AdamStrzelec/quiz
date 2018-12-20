@@ -11,6 +11,7 @@ export default class QuizItem extends Component {
           name: "Quiz",
           passProps: {
             quizId: this.props.tests.id,
+            name: this.props.tests.name,
           }
         }
       }

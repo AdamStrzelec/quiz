@@ -5,12 +5,14 @@ import App from "./App";
 import Drawer from "./Drawer";
 import Quiz from "./components/Quiz";
 import Results from "./components/Results";
+import Result from "./Result";
 import { Dimensions } from "react-native";
 
 Navigation.registerComponent(`Home`, () => App);
 Navigation.registerComponent(`Drawer`, () => Drawer);
 Navigation.registerComponent(`Quiz`, () => Quiz);
 Navigation.registerComponent(`Results`, () => Results);
+Navigation.registerComponent(`Result`, () => Result);
 
 
 /*

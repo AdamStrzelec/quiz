@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import { Navigation } from "react-native-navigation";
+//import QuizAnswer from '.QuizAnswer';
 
 export default class Quiz extends Component {
 
@@ -24,21 +26,72 @@ export default class Quiz extends Component {
     answer4: [],
     test: null,
     tableOfTasks: [],
-    answered: false
+    answered: false,
+    tableRefreshed: [],
+    correctAnswer: '',
+    correctNumber: 0,
     
   }
 
-  
+  sendResult = () => {
+    fetch('https://pwsz-quiz-api.herokuapp.com/api/result', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nick: 'bez nazwyy',
+        score: this.state.points+'',
+        total: this.state.questionsCount+'',
+        type: this.props.name,
+        date: '2018-12-19'
+      })
+    }
+
+    );
+  }
+
   nextQuestion = () =>{
     let duration = this.state.test.tasks[this.state.curQuestNr+1].duration
     let questNr = this.state.curQuestNr
-    questNr = questNr+1
-    this.setState({curQuestNr: questNr, answered: false, duration: duration})
+    
+
+    if(questNr+1==this.state.questionsCount-1){
+      
+      this.sendResult()
+
+      Navigation.setRoot({
+        root: {
+          component: {
+            name: "Result",
+            passProps: {
+              points: this.state.points,
+              questCount: this.state.questionsCount
+              
+            }
+          }
+        }
+      });
+    }
+    
+    if(questNr<this.state.questionsCount-1){
+      
+      questNr = questNr+1
+      console.log(questNr + " quest zount " + this.state.questionsCount)
+      this.setState({curQuestNr: questNr, answered: false, duration: duration, correctAnswer: ''})
+    }
+  
+    //this.setState({curQuestNr: questNr, answered: false, duration: duration, correctAnswer: ''})
     //console.log(this.state.dur + " " + this.state.duration)
+    if(questNr+1==this.state.questionsCount){
+      console.log('to juz jest koniec')
+      this.setState({buttonTitle: 'Zakończ quiz'})
+    }
   }
   
  
- componentDidMount(){
+ async componentDidMount(){
   return fetch('https://pwsz-quiz-api.herokuapp.com/api/test/'+this.state.id)
   .then(response => response.json())
   .then(json => { 
@@ -50,29 +103,38 @@ export default class Quiz extends Component {
       dur: json.tasks[0].duration
       }
     )
-    
+    let ans = ['a) ', 'b) ', 'c) ', 'd) ', 'e) ', 'f) ', 'g) ']
     let tempTabOfTasks = []
     let tempTabOfAnswers = []
+
     for(let i=0; i<json.tasks.length; i++){    
       for(let j=0; j<json.tasks[i].answers.length; j++){
+
         tempTabOfAnswers.push(
           //<View>
             <TouchableOpacity  
               onPress={this.checkAnswer.bind(this, json.tasks[i].answers[j].isCorrect)
               }>
                 <Text style={this.buttonStyle(json.tasks[i].answers[j].isCorrect)}>
-                  {json.tasks[i].answers[j].content}
+                  {j+1}) {json.tasks[i].answers[j].content}
                 </Text>
             </TouchableOpacity>
           //</View>
         )
+        
+        if(json.tasks[i].answers[j].isCorrect){
+          this.setState({correctNumber: j})
+          console.log('poprawna odp: ' + this.state.correctNumber)
+        }
+        
       }
       tempTabOfTasks.push(
         <View>
           <Text style={styles.question}>{json.tasks[i].question}</Text>
-          {tempTabOfAnswers}
+            {tempTabOfAnswers}
         </View>
       )
+
       tempTabOfAnswers = []
     }
     this.setState({tableOfTasks: tempTabOfTasks})
@@ -127,10 +189,10 @@ export default class Quiz extends Component {
   clearInterval(this.timeout);
 }
 
-  checkAnswer = isCorrect => {
+  checkAnswer = (isCorrect, number) => {
     let points = this.state.points
     isCorrect ? points = points+1 : points
-    this.setState({answered: true, points: points})
+    this.setState({answered: true, points: points, correctAnswer: 'poprawna odpowiedź to: '+ this.state.correctNumber})
     console.log("answer is: " + isCorrect + " " + points)
     
   }
@@ -138,7 +200,7 @@ export default class Quiz extends Component {
 
 
   render() {
-    
+    console.log('nazwa: ' + this.props.name)
     let tempTabOfTasks = []
     let tempTabOfAnswers = []
     if(this.state.test instanceof Object){
@@ -148,7 +210,7 @@ export default class Quiz extends Component {
         tempTabOfAnswers.push(
           //<View>
             <TouchableOpacity  
-              onPress={this.checkAnswer.bind(this, test.tasks[i].answers[j].isCorrect)
+              onPress={this.checkAnswer.bind(this, test.tasks[i].answers[j].isCorrect, j)
               }>
                 <Text style={this.buttonStyle(test.tasks[i].answers[j].isCorrect)}>
                   {test.tasks[i].answers[j].content}
@@ -165,6 +227,7 @@ export default class Quiz extends Component {
       )
       tempTabOfAnswers = []
     }
+    //console.log(tempTabOfAnswers[0])
   }
     //{this.state.tableOfTasks[this.state.curQuestNr]}
     //{tempTabOfTasks[this.state.curQuestNr]}
@@ -180,6 +243,7 @@ export default class Quiz extends Component {
 
           
         </View>
+        <Text>{this.state.correctAnswer}</Text>
         <Text style={styles.duration}>Czas na odpowiedź: {this.state.duration}</Text>
         <TouchableOpacity 
           onPress={this.nextQuestion}>
@@ -194,7 +258,7 @@ export default class Quiz extends Component {
     console.log("isCorrect: " + answered)
     
     let background = 'gray'
-    answered==true ? background='green' : background='gray'
+    //isCorrect==true ? background='green' : background='gray'
     return {
       textAlign: 'center',
       borderRadius: 15,
@@ -211,6 +275,30 @@ export default class Quiz extends Component {
       height: 43
     }
   }
+
+  buttonStyleAns = function(isCorrect){
+    let answered = this.state.answered
+    console.log("isCorrect: " + answered)
+    
+    let background = 'gray'
+    isCorrect==true ? background='green' : background='gray'
+    return {
+      textAlign: 'center',
+      borderRadius: 15,
+      fontSize: 14,
+      fontWeight: '500',
+      color: 'white',
+      backgroundColor: background,
+      paddingTop: 2,
+      paddingBottom: 3,
+      marginLeft: 15,
+      marginRight: 15,
+      marginTop: 5,
+      width: 400,
+      height: 43
+    }
+  }
+
 }
 
 const styles = StyleSheet.create({
